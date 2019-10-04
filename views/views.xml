@@ -11,6 +11,17 @@
             <field name="arch" type="xml">
               <!--La etiqueta form debe ser entendida como si fuese una lámina de papel, ésta será el rectángulo blanco que veremos al revisar el módulo desde el cliente web-->
               <form name="Car Request Form">
+                <header>
+                  <!--El atributo name de la etiqueta button debe tener un correlativo en models.py que detalle el comportamiento al ser presionado-->
+                  <!--El atributo states de la etiqueta button determina bajo qué situación del flujo de trabajo se muestra dicho botón-->
+                  <!--El atributo groups de la etiqueta button determina si el usuario debe ser parte de algún grupo para poder ver dicho botón-->
+                    <button name="confirm_request" string="Confirm" class="oe_highlight" states="draft" type="object"/>
+                    <button name="validate_request" string="Validate" class="oe_highlight" states="confirm" type="object" groups="hr.group_hr_user"/>
+                    <button name="approve_request" string="Approve" class="oe_highlight" states="validate" type="object" groups="hr.group_hr_manager"/>
+                  <!--Para el siguiente botón se retira la clase oe_highlight porque no es el paso lógico en el flujo de trabajo-->
+                    <button name="refuse_request" string="Refuse" states="confirm,validate" type="object" groups="hr.group_hr_user,hr.group_hr_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,validate" statusbar_colors="{'KEY_IS_STATE':'VALUE_IS_COLOR'}"/>
+                </header>
                 <sheet>
                   <!--odoo_form_title nos entrega el código necesario para colocar un título a nuestra lámina-->
                   <div class="oe_title">
@@ -21,15 +32,19 @@
                   </div>
                   <group>
                     <group>
-                      <field name="date_from"></field>
-                      <field name="date_to"></field>
+                      <field name="date_from"/>
+                      <field name="date_to"/>
                     </group>
                     <group>
-                      <field name="employee_id"></field>
-                      <field name="car_id"></field>
+                      <field name="employee_id"/>
+                      <field name="car_id"/>
                     </group>
                   </group>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
 
               </form>
             </field>
