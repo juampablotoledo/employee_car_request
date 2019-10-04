@@ -18,6 +18,12 @@ class CarRequest(models.Model):
     state = fields.Selection(string="Status", selection=[('draft', 'Draft'), ('confirm', 'Confirm'),
                                                          ('validate', 'Validate'), ('refuse', 'Refuse'),
                                                          ('approved', 'Approved'), ], default="draft", track_visibility='onchange')
+    email = fields.Char(string="Email", required=False, )
+
+#   A diferencia de las validaciones más sencillas, las validaciones sql actúan a nivel de base de datos y no sólo en la aplicación. Se pueden ver desde psql usando  \d nombre_de_tabla
+    _sql_constraints = [
+        ('unique_email', 'unique(email)', 'Email address should be unique')
+    ]
 
     @api.multi
     def confirm_request(self):
