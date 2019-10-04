@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 
 class CarRequest(models.Model):
     _name = 'car.request' #Crea una tabla con ese nombre en la base de datos
@@ -25,13 +26,21 @@ class CarRequest(models.Model):
         ('unique_email', 'unique(email)', 'Email address should be unique')
     ]
 
+    @api.constrains('email')
+    def _check_email(self):
+        """Éste tipo de validaciones sólo funcionan al crear y al actualizar un registro, todo dato previo que viole dicha validación seguirá guardado como está"""
+        if self.email.endswith('gmail.com'):
+            raise UserError("Gmail isn't allowed, please use your corporate email address")
+        if self.email.endswith('yahoo.com'):
+            raise UserError("Yahoo isn't allowed, please use your corporate email address")
+
     @api.multi
     def confirm_request(self):
-        self.state = 'confirm'\
+        self.state = 'confirm'
 
     @api.multi
     def validate_request(self):
-        self.state = 'validate'\
+        self.state = 'validate'
 
     @api.multi
     def refuse_request(self):
