@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
-from odoo.exceptions import UserError
+from odoo import models, fields, api, exceptions
+#from odoo.exceptions import UserError,
 
 class CarRequest(models.Model):
     _name = 'car.request' #Crea una tabla con ese nombre en la base de datos
@@ -19,20 +19,28 @@ class CarRequest(models.Model):
     state = fields.Selection(string="Status", selection=[('draft', 'Draft'), ('confirm', 'Confirm'),
                                                          ('validate', 'Validate'), ('refuse', 'Refuse'),
                                                          ('approved', 'Approved'), ], default="draft", track_visibility='onchange')
-    email = fields.Char(string="Email", required=False, )
+    email = fields.Char(string="Email", required=True, )
 
 #   A diferencia de las validaciones más sencillas, las validaciones sql actúan a nivel de base de datos y no sólo en la aplicación. Se pueden ver desde psql usando  \d nombre_de_tabla
     _sql_constraints = [
         ('unique_email', 'unique(email)', 'Email address should be unique')
     ]
 
-    @api.constrains('email')
+    @api.constrains('date_from', 'date_to')
+    def _check_validity_date_from_date_to(self):
+       #  verifies if check_in is earlier than check_out
+        for carRequest in self:
+            if carRequest.date_from and carRequest.date_to:
+                if carRequest.date_to < carRequest.date_from:
+                    raise exceptions.ValidationError(_('"End Date" time cannot be earlier than "Starting Date" time.'))
+
+    """@api.constrains('email')
     def _check_email(self):
-        """Éste tipo de validaciones sólo funcionan al crear y al actualizar un registro, todo dato previo que viole dicha validación seguirá guardado como está"""
+        #Este tipo de validaciones sólo funcionan al crear y al actualizar un registro, todo dato previo que viole dicha validación seguirá guardado como está
         if self.email.endswith('gmail.com'):
             raise UserError("Gmail isn't allowed, please use your corporate email address")
         if self.email.endswith('yahoo.com'):
-            raise UserError("Yahoo isn't allowed, please use your corporate email address")
+            raise UserError("Yahoo isn't allowed, please use your corporate email address")"""
 
     @api.multi
     def confirm_request(self):
